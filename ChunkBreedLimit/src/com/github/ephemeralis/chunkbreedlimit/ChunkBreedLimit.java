@@ -9,7 +9,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class ChunkBreedLimit extends JavaPlugin {
 	
-	private BreederListener spawnListener;
 	public int entitySpawnCap;
 	public List<EntityType> allowedEntityList = new ArrayList<EntityType>();
 	
@@ -41,14 +40,14 @@ public class ChunkBreedLimit extends JavaPlugin {
 			}
 		}
 		
-		spawnListener = new BreederListener(this);
+		new BreederListener(this, entitySpawnCap, allowedEntityList);
 		getLogger().info(String.format("Now watching: %s when entity chunk count above %s", allowedEntityList.toString(), entitySpawnCap));
 	}
 	
 	@Override
 	public void onDisable()
 	{
-		CreatureSpawnEvent.getHandlerList().unregister(spawnListener);
+		CreatureSpawnEvent.getHandlerList().unregister(this);
 		getLogger().info("ChunkBreedLimit unloaded!");
 	}
 }

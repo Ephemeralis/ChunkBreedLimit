@@ -1,9 +1,10 @@
 package com.github.ephemeralis.chunkbreedlimit;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventPriority;
@@ -11,10 +12,15 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 
 public class BreederListener implements Listener {
 	
-	private ChunkBreedLimit basePlugin;
-	public BreederListener(ChunkBreedLimit plugin)
+	//private ChunkBreedLimit basePlugin;
+	private int spawnCap;
+	private List<EntityType> allowedEntities;
+	
+	public BreederListener(ChunkBreedLimit plugin, int cap, List<EntityType> allowedEnts)
 	{
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
+		spawnCap = cap;
+		allowedEntities = allowedEnts;
 	}
 	
 	@EventHandler(priority = EventPriority.HIGH)
@@ -31,16 +37,15 @@ public class BreederListener implements Listener {
 				//we have entity list, so iterate through it
 				//to determine just how many of the same type
 				//we have on the same chunk
-				if (basePlugin.allowedEntityList.contains(ent.getType()))
+				if (allowedEntities.contains(ent.getType()))
 				{
 					//same type detected, so increase
 					entcount++;
 				}
 			}
 			
-			if (entcount > basePlugin.entitySpawnCap) //replace this with configuratio0n reader
+			if (entcount > spawnCap) //replace this with configuratio0n reader
 			{
-				basePlugin.getLogger().log(Level.INFO, "Entity breed limit exceeded, culling");
 				event.setCancelled(true); //must be a better way to can the event
 			}
 		}
