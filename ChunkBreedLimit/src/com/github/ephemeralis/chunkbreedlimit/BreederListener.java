@@ -11,18 +11,17 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 
 public class BreederListener implements Listener {
 	
-	private Logger outputLogger; 
-	
+	private ChunkBreedLimit basePlugin;
 	public BreederListener(ChunkBreedLimit plugin)
 	{
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
-		outputLogger = plugin.getLogger();
 	}
 	
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onCreatureSpawnEvent(CreatureSpawnEvent event)
 	{
-		if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.BREEDING)
+		if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.BREEDING 
+				|| event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.EGG)
 		{
 			Entity[] entitiesInEventChunk = event.getLocation().getChunk().getEntities();
 			
@@ -32,16 +31,16 @@ public class BreederListener implements Listener {
 				//we have entity list, so iterate through it
 				//to determine just how many of the same type
 				//we have on the same chunk
-				if (ent.getType() == event.getEntityType())
+				if (basePlugin.allowedEntityList.contains(ent.getType()))
 				{
 					//same type detected, so increase
 					entcount++;
 				}
 			}
 			
-			if (entcount > 5) //replace this with configuratio0n reader
+			if (entcount > basePlugin.entitySpawnCap) //replace this with configuratio0n reader
 			{
-				outputLogger.log(Level.FINE, "Entity count exceeded, cancelling entity!!");
+				basePlugin.getLogger().log(Level.INFO, "Entity breed limit exceeded, culling");
 				event.setCancelled(true); //must be a better way to can the event
 			}
 		}
