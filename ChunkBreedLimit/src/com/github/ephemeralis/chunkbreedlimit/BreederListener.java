@@ -18,12 +18,14 @@ public class BreederListener implements Listener {
 	//private ChunkBreedLimit basePlugin;
 	private int spawnCap;
 	private List<EntityType> allowedEntities;
+	private String breedingFailMessage;
 	
-	public BreederListener(ChunkBreedLimit plugin, int cap, List<EntityType> allowedEnts)
+	public BreederListener(ChunkBreedLimit plugin, int cap, List<EntityType> allowedEnts, String bmsg)
 	{
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 		spawnCap = cap;
 		allowedEntities = allowedEnts;
+		breedingFailMessage = bmsg;
 	}
 	
 	@EventHandler(priority = EventPriority.HIGH)
@@ -67,13 +69,13 @@ public class BreederListener implements Listener {
 			//player is holding wheat and the entity is allowed, check
 			for (Entity ent : event.getRightClicked().getLocation().getChunk().getEntities())
 			{
-				if (allowedEntities.contains(event.getRightClicked().getType()))
+				if (allowedEntities.contains(ent.getType()))
 					entcount++;
 			}
 			
 			if (entcount >= spawnCap)
 			{
-				p.sendMessage(ChatColor.RED + "The animal shuffles about nervously.. It is too crowded to be bred!");
+				p.sendMessage(ChatColor.RED + breedingFailMessage);
 				event.setCancelled(true);	
 			}
 		}

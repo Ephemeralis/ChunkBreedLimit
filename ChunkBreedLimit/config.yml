@@ -1,6 +1,8 @@
 # spawn-cap: maximum number of entities per chunk before breeding is disabled
 # entity-list: mobs that are counted in a chunk's total count
+# breeding-fail-msg: message sent to the player when breeding is disabled due to chunk capacity
 spawn-cap: 100
+breeding-fail-msg: "The animal shuffles about nervously.. It is too crowded for it to breed!"
 entity-list:
   - pig
   - cow

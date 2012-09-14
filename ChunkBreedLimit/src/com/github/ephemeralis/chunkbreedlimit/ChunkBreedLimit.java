@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ChunkBreedLimit extends JavaPlugin {
@@ -17,7 +18,7 @@ public class ChunkBreedLimit extends JavaPlugin {
 	{
 		this.saveDefaultConfig();
 		entitySpawnCap = this.getConfig().getInt("spawn-cap", 100);
-		
+		String breedingFailMessage = this.getConfig().getString("breeding-fail-msg", "The animal cannot breed - it is too crowded!");
 		List<String> entityListLoad = this.getConfig().getStringList("entity-list");
 		
 		if (entityListLoad.size() == 0)
@@ -40,7 +41,7 @@ public class ChunkBreedLimit extends JavaPlugin {
 			}
 		}
 		
-		new BreederListener(this, entitySpawnCap, allowedEntityList);
+		new BreederListener(this, entitySpawnCap, allowedEntityList, breedingFailMessage);
 		getLogger().info(String.format("Now watching: %s when entity chunk count above %s", allowedEntityList.toString(), entitySpawnCap));
 	}
 	
@@ -48,6 +49,7 @@ public class ChunkBreedLimit extends JavaPlugin {
 	public void onDisable()
 	{
 		CreatureSpawnEvent.getHandlerList().unregister(this);
+		PlayerInteractEntityEvent.getHandlerList().unregister(this);
 		getLogger().info("ChunkBreedLimit unloaded!");
 	}
 }
