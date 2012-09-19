@@ -1,8 +1,6 @@
 package com.github.ephemeralis.chunkbreedlimit;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -28,11 +26,12 @@ public class BreederListener implements Listener {
 		breedingFailMessage = bmsg;
 	}
 	
-	@EventHandler(priority = EventPriority.HIGH)
+	@EventHandler
 	public void onCreatureSpawnEvent(CreatureSpawnEvent event)
 	{
 		if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.BREEDING 
-				|| event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.EGG)
+				|| event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.EGG
+				|| event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG)
 		{
 			Entity[] entitiesInEventChunk = event.getLocation().getChunk().getEntities();
 			
@@ -62,7 +61,11 @@ public class BreederListener implements Listener {
 	{
 		Player p = event.getPlayer();
 		
-		if (p.getItemInHand().getType() == Material.WHEAT 
+		if ((p.getItemInHand().getType() == Material.WHEAT ||
+				p.getItemInHand().getType() == Material.RAW_BEEF ||
+				p.getItemInHand().getType() == Material.PORK ||
+				p.getItemInHand().getType() == Material.COOKED_BEEF ||
+				p.getItemInHand().getType() == Material.RAW_FISH)
 				&& allowedEntities.contains(event.getRightClicked().getType()))
 		{
 			int entcount = 0;
