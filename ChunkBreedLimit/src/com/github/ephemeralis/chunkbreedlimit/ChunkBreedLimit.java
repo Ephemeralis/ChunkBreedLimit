@@ -33,7 +33,9 @@ public class ChunkBreedLimit extends JavaPlugin {
 		entitySpawnCap = this.getConfig().getInt("spawn-cap", 100);
 		boolean individualCap = this.getConfig().getBoolean("use-individual-cap", false);
 		String breedingFailMessage = this.getConfig().getString("breeding-fail-msg", "The animal cannot breed - it is too crowded!");
-		
+		if (listener != null) {
+			listener.unregister();
+		}
 		if (individualCap)
 		{
 			List<String> entityListLoad = this.getConfig().getStringList("entity-list-individual");
@@ -58,7 +60,7 @@ public class ChunkBreedLimit extends JavaPlugin {
 				}
 			}
 			
-			new BreederListener(this, entitySpawnCap, individCapData, breedingFailMessage);
+			listener = new BreederListener(this, entitySpawnCap, individCapData, breedingFailMessage);
 			getLogger().info("Watching individual entity limits");
 		}
 		else
@@ -83,9 +85,7 @@ public class ChunkBreedLimit extends JavaPlugin {
 						allowedEntityList.add(temp);
 				}
 			}
-			if (listener != null) {
-				listener.unregister();
-			}
+			
 			listener = new BreederListener(this, entitySpawnCap, allowedEntityList, breedingFailMessage);
 			getLogger().info(String.format("Now watching: %s when entity chunk count above %s", allowedEntityList.toString(), entitySpawnCap));
 		}
