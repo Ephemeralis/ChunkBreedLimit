@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -12,13 +14,22 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class ChunkBreedLimit extends JavaPlugin {
 	
 	public int entitySpawnCap;
-	public List<EntityType> allowedEntityList = new ArrayList<EntityType>();
-	public Hashtable<EntityType, Integer> individCapData = new Hashtable<EntityType, Integer>();
-	
+	public List<EntityType> allowedEntityList;
+	public Hashtable<EntityType, Integer> individCapData;
+	BreederListener listener;
 	@Override
 	public void onEnable()
 	{
 		this.saveDefaultConfig();
+		initialize();
+		
+	}
+	
+	
+	public void initialize() {
+		
+		individCapData = new Hashtable<EntityType, Integer>();
+		allowedEntityList = new ArrayList<EntityType>();
 		entitySpawnCap = this.getConfig().getInt("spawn-cap", 100);
 		boolean individualCap = this.getConfig().getBoolean("use-individual-cap", false);
 		String breedingFailMessage = this.getConfig().getString("breeding-fail-msg", "The animal cannot breed - it is too crowded!");
@@ -72,11 +83,30 @@ public class ChunkBreedLimit extends JavaPlugin {
 						allowedEntityList.add(temp);
 				}
 			}
-			
-			new BreederListener(this, entitySpawnCap, allowedEntityList, breedingFailMessage);
+			if (listener != null) {
+				listener.unregister();
+			}
+			listener = new BreederListener(this, entitySpawnCap, allowedEntityList, breedingFailMessage);
 			getLogger().info(String.format("Now watching: %s when entity chunk count above %s", allowedEntityList.toString(), entitySpawnCap));
 		}
 		
+	}
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command command,
+			String label, String[] args) {
+		if (!sender.hasPermission("chunkbreedlimit.admin")) return true;
+		if (command.getName().equalsIgnoreCase("chunkbreedlimit")) {
+			switch (args[0].toLowerCase()) {
+			case "reload":
+				reloadConfig();
+				initialize();
+				break;
+			default:
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	@Override
