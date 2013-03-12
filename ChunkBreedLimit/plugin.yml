@@ -1,3 +1,11 @@
 name: ChunkBreedLimit
 main: com.github.ephemeralis.chunkbreedlimit.ChunkBreedLimit
-version: 1.2
+version: 1.4
+commands:
+    chunkbreedlimit:
+        aliases: [cbl]
+        description: manage chunkbreedlimit config
+        usage: "/<command> reload"
+permissions:
+    chunkbreedlimit.admin:
+        description: allowed to reload CBL Config

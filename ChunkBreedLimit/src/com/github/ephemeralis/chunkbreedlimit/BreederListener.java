@@ -58,6 +58,11 @@ public class BreederListener implements Listener {
 
 	}
 	
+	public void unregister() {
+		CreatureSpawnEvent.getHandlerList().unregister(this);
+		PlayerInteractEntityEvent.getHandlerList().unregister(this);
+	}
+	
 	@EventHandler
 	public void onCreatureSpawnEvent(CreatureSpawnEvent event)
 	{
@@ -66,17 +71,21 @@ public class BreederListener implements Listener {
 				|| event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG)
 		{
 			
+			boolean cancel = false;
 			if (individualEntityCap && allowedEntities.contains(event.getEntityType()))
 			{
-				event.setCancelled(checkAndApplyEntityWithCap(event.getEntityType(), 
+				cancel = checkAndApplyEntityWithCap(event.getEntityType(), 
 						event.getLocation().getChunk(),
-						individualCapData.get(event.getEntityType())));
+						individualCapData.get(event.getEntityType()));
 			}
 			else
 			{
 				//otherwise, just use standard checking
-				event.setCancelled(checkAndApplyEntity(event.getEntityType(), 
-						event.getLocation().getChunk()));
+				cancel = checkAndApplyEntity(event.getEntityType(), 
+						event.getLocation().getChunk());
+			}
+			if (cancel) {
+				event.setCancelled(true);
 			}
 			
 		} 
@@ -148,24 +157,35 @@ public class BreederListener implements Listener {
 		Player p = event.getPlayer();
 		
 		if ((p.getItemInHand().getType() == Material.WHEAT ||
+				p.getItemInHand().getType() == Material.CARROT ||
+						p.getItemInHand().getType() == Material.SEEDS ||
 				p.getItemInHand().getType() == Material.RAW_BEEF ||
 				p.getItemInHand().getType() == Material.PORK ||
 				p.getItemInHand().getType() == Material.COOKED_BEEF ||
 				p.getItemInHand().getType() == Material.RAW_FISH)
 				&& allowedEntities.contains(event.getRightClicked().getType()))
 		{
-			int entcount = 0;
-			//player is holding wheat and the entity is allowed, check
-			for (Entity ent : event.getRightClicked().getLocation().getChunk().getEntities())
-			{
-				if (allowedEntities.contains(ent.getType()))
-					entcount++;
+			boolean cancel = false;
+			if (individualEntityCap) {
+				cancel = checkAndApplyEntityWithCap(
+						event.getRightClicked().getType(), 
+						event.getRightClicked().getLocation().getChunk(), 
+						individualCapData.get(event.getRightClicked().getType()));
+			} else {
+				int entcount = 0;
+				//player is holding wheat and the entity is allowed, check
+				for (Entity ent : event.getRightClicked().getLocation().getChunk().getEntities())
+				{
+					if (allowedEntities.contains(ent.getType()))
+						entcount++;
+				}
+				cancel = entcount >= spawnCap;
+				
+				
 			}
-			
-			if (entcount >= spawnCap)
-			{
+			if (cancel) {
 				p.sendMessage(ChatColor.RED + breedingFailMessage);
-				event.setCancelled(true);	
+				event.setCancelled(true);
 			}
 		}
 		
